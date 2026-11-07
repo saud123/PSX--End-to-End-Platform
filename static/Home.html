@@ -1,0 +1,3744 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark light" />
+  <meta name="theme-color" content="#0a0f0c" />
+  <title>PSX Intelligence · Multi-agent research for the Pakistan Stock Exchange</title>
+  <meta name="description" content="Five specialist AI agents research every PSX equity and write a sourced, nine-section brief with a clear verdict — in about twenty seconds." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── TOKENS ── */
+    :root {
+      --ink-950: #0a0f0c;
+      --ink-900: #0f1411;
+      --ink-800: #131a15;
+      --ink-700: #1a231c;
+      --ink-600: #1f2a22;
+      --ink-500: #2e3f32;
+      --ink-050: #f7faf5;
+      --ink-025: #ffffff;
+      --ink-100: #f0f4ec;
+      --ink-200: #e1e8dd;
+      --ink-300: #c7d2c2;
+      --ink-400: #5a6a60;
+      --lime-500: #b8ff3d;
+      --lime-400: #cdff6b;
+      --lime-600: #4f8600;
+      --lime-700: #609e00;
+      --red-500: #ff5b5b;
+      --red-600: #c81e1e;
+      --text-100: #eef3ef;
+      --text-300: #c0ccc4;
+      --text-500: #8fa196;
+      --text-700: #3a4a40;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 24px;
+      --space-6: 32px;
+      --space-7: 48px;
+      --space-8: 64px;
+      --space-9: 96px;
+      --space-10: 128px;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --motion-ease: cubic-bezier(.2, 0, 0, 1);
+      --motion-fast: 140ms;
+      --motion-mid: 220ms;
+      --motion-slow: 400ms;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+      --max-w: 1240px;
+    }
+
+    html[data-theme="dark"] {
+      --color-bg: var(--ink-950);
+      --color-bg-2: var(--ink-900);
+      --color-surface: var(--ink-800);
+      --color-surface-2: var(--ink-700);
+      --color-border: var(--ink-600);
+      --color-border-hi: var(--ink-500);
+      --color-text: var(--text-100);
+      --color-text-dim: var(--text-300);
+      --color-text-muted: var(--text-500);
+      --color-accent: var(--lime-500);
+      --color-accent-hi: var(--lime-400);
+      --color-accent-on: var(--ink-950);
+      --color-accent-dim: rgba(184, 255, 61, .15);
+      --color-accent-soft: rgba(184, 255, 61, .06);
+      --color-sell: var(--red-500);
+      --shadow-card: 0 1px 0 rgba(255, 255, 255, .02) inset, 0 20px 60px rgba(0, 0, 0, .5);
+      --shadow-card-hi: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 30px 80px rgba(0, 0, 0, .6);
+      --grid-line: rgba(255, 255, 255, .03);
+    }
+
+    html[data-theme="light"] {
+      --color-bg: var(--ink-050);
+      --color-bg-2: var(--ink-100);
+      --color-surface: var(--ink-025);
+      --color-surface-2: var(--ink-100);
+      --color-border: var(--ink-200);
+      --color-border-hi: var(--ink-300);
+      --color-text: var(--ink-950);
+      --color-text-dim: var(--text-700);
+      --color-text-muted: var(--ink-400);
+      --color-accent: var(--lime-600);
+      --color-accent-hi: var(--lime-700);
+      --color-accent-on: #fff;
+      --color-accent-dim: rgba(79, 134, 0, .12);
+      --color-accent-soft: rgba(79, 134, 0, .06);
+      --color-sell: var(--red-600);
+      --shadow-card: 0 1px 0 rgba(0, 0, 0, .02) inset, 0 8px 32px rgba(20, 30, 20, .08);
+      --shadow-card-hi: 0 1px 0 rgba(0, 0, 0, .02) inset, 0 16px 48px rgba(20, 30, 20, .12);
+      --grid-line: rgba(0, 0, 0, .03);
+    }
+
+    html {
+      color-scheme: dark light;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+    }
+
+    html[data-theme="light"] {
+      color-scheme: light;
+    }
+
+    /* ── RESET ── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      background: var(--color-bg);
+      color: var(--color-text);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+      transition: background var(--motion-mid) var(--motion-ease), color var(--motion-mid) var(--motion-ease);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    input,
+    select,
+    textarea {
+      font: inherit;
+      color: inherit;
+      background: none;
+      border: none;
+      outline: none;
+    }
+
+    ::selection {
+      background: var(--color-accent);
+      color: var(--color-accent-on);
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 3px;
+      border-radius: var(--radius-sm);
+    }
+
+    .mono {
+      font-family: var(--font-mono);
+      font-feature-settings: "tnum" 1, "lnum" 1;
+    }
+
+    /* ── SCROLL PROGRESS ── */
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--color-accent);
+      transform-origin: 0 50%;
+      transform: scaleX(0);
+      z-index: 100;
+      pointer-events: none;
+      transition: transform 80ms linear;
+    }
+
+    /* ── BACK TO TOP ── */
+    .back-to-top {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-hi);
+      border-radius: 50%;
+      color: var(--color-text-muted);
+      box-shadow: var(--shadow-card);
+      z-index: 40;
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: opacity var(--motion-mid) var(--motion-ease), transform var(--motion-mid) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease);
+    }
+
+    .back-to-top.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .back-to-top:hover {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+    }
+
+    .back-to-top svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    @media (max-width: 600px) {
+      .back-to-top {
+        width: 40px;
+        height: 40px;
+        bottom: 20px;
+        right: 20px;
+      }
+    }
+
+    /* ── LAYOUT ── */
+    .container {
+      width: 100%;
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 var(--space-6);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 var(--space-5);
+      }
+    }
+
+    section {
+      position: relative;
+    }
+
+    .section {
+      padding: var(--space-10) 0;
+    }
+
+    @media (max-width: 768px) {
+      .section {
+        padding: var(--space-8) 0;
+      }
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-4);
+    }
+
+    .eyebrow .bullet {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      flex-shrink: 0;
+      animation: subtlePulse 2400ms ease-in-out infinite;
+    }
+
+    @keyframes subtlePulse {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: .55;
+        transform: scale(.82);
+      }
+    }
+
+    .h-display {
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: clamp(40px, 5.5vw, 68px);
+      line-height: 1.02;
+      letter-spacing: -.03em;
+      color: var(--color-text);
+    }
+
+    .h-section {
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: clamp(32px, 3.6vw, 48px);
+      line-height: 1.08;
+      letter-spacing: -.02em;
+      color: var(--color-text);
+      max-width: 22ch;
+    }
+
+    .lede {
+      font-size: 18px;
+      line-height: 1.6;
+      color: var(--color-text-dim);
+      max-width: 62ch;
+    }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      transition: background var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease), transform 100ms var(--motion-ease);
+      white-space: nowrap;
+    }
+
+    .btn:active {
+      transform: scale(.98);
+    }
+
+    .btn-primary {
+      background: var(--color-accent);
+      color: var(--color-accent-on);
+    }
+
+    .btn-primary:hover {
+      background: var(--color-accent-hi);
+      box-shadow: 0 0 0 4px var(--color-accent-dim);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--color-text);
+      border: 1px solid var(--color-border-hi);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+    }
+
+    .btn-arrow {
+      display: inline-block;
+      transition: transform var(--motion-fast) var(--motion-ease);
+    }
+
+    .btn:hover .btn-arrow {
+      transform: translateX(3px);
+    }
+
+    /* ── NAV ── */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      height: 64px;
+      background: color-mix(in srgb, var(--color-bg) 80%, transparent);
+      backdrop-filter: saturate(180%) blur(16px);
+      -webkit-backdrop-filter: saturate(180%) blur(16px);
+      border-bottom: 1px solid var(--color-border);
+      transition: background var(--motion-mid) var(--motion-ease), border-color var(--motion-mid) var(--motion-ease);
+    }
+
+    .nav.is-scrolled {
+      background: color-mix(in srgb, var(--color-bg) 95%, transparent);
+      border-bottom-color: var(--color-border-hi);
+    }
+
+    .nav-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      gap: var(--space-6);
+      padding: 0 var(--space-6);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      flex-shrink: 0;
+    }
+
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      background: var(--color-accent);
+      color: var(--color-accent-on);
+      border-radius: var(--radius-md);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: -.03em;
+    }
+
+    .brand-name {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: -.01em;
+      line-height: 1.2;
+    }
+
+    .brand-sub {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      line-height: 1.2;
+      margin-top: 2px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2px;
+      flex: 1;
+    }
+
+    .nav-links a {
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-text-muted);
+      transition: color var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease);
+    }
+
+    .nav-links a:hover {
+      color: var(--color-text);
+      background: var(--color-surface-2);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      flex-shrink: 0;
+    }
+
+    .theme-toggle {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      color: var(--color-text-muted);
+      transition: border-color var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease);
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--color-border-hi);
+      color: var(--color-text);
+    }
+
+    .theme-toggle svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .theme-toggle .icon-sun {
+      display: none;
+    }
+
+    html[data-theme="dark"] .theme-toggle .icon-moon {
+      display: block;
+    }
+
+    html[data-theme="dark"] .theme-toggle .icon-sun {
+      display: none;
+    }
+
+    html[data-theme="light"] .theme-toggle .icon-moon {
+      display: none;
+    }
+
+    html[data-theme="light"] .theme-toggle .icon-sun {
+      display: block;
+    }
+
+    @media (max-width: 900px) {
+      .nav-links {
+        display: none;
+      }
+
+      .nav-inner {
+        padding: 0 var(--space-5);
+        gap: var(--space-4);
+      }
+
+      .nav-actions .btn-secondary {
+        display: none;
+      }
+    }
+
+    /* ── HERO ── */
+    .hero {
+      padding: var(--space-9) 0 var(--space-9);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse 70% 55% at 50% 42%, black 20%, transparent 82%);
+      -webkit-mask-image: radial-gradient(ellipse 70% 55% at 50% 42%, black 20%, transparent 82%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-3d {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      mask-image: radial-gradient(ellipse 100% 92% at 50% 48%, black 55%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 100% 92% at 50% 48%, black 55%, transparent 100%);
+    }
+
+    @media (max-width: 900px) {
+      .bg-3d {
+        display: none;
+      }
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: var(--space-9);
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 1000px) {
+      .hero-inner {
+        grid-template-columns: 1fr;
+        gap: var(--space-8);
+      }
+    }
+
+    .market-strip {
+      margin-bottom: var(--space-6);
+      overflow: hidden;
+      border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+      padding: var(--space-2) 0;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-text-muted);
+      letter-spacing: .06em;
+      mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+      -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+    }
+
+    .market-strip-track {
+      display: inline-flex;
+      gap: var(--space-7);
+      white-space: nowrap;
+      animation: tickerScroll 80s linear infinite;
+    }
+
+    @keyframes tickerScroll {
+      from {
+        transform: translateX(0);
+      }
+      to {
+        transform: translateX(-50%);
+      }
+    }
+
+    .market-strip .ms {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .market-strip .ms b {
+      color: var(--color-text);
+      font-weight: 700;
+    }
+
+    .market-strip .ms .up {
+      color: var(--color-accent);
+    }
+
+    .market-strip .ms .down {
+      color: var(--color-sell);
+    }
+
+    .hero-copy {
+      max-width: 620px;
+    }
+
+    .hero h1 {
+      margin-bottom: var(--space-5);
+    }
+
+    .hero h1 .dim {
+      color: var(--color-text-muted);
+    }
+
+    .hero-line {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(24px);
+      animation: heroRise 720ms var(--motion-ease) forwards;
+    }
+
+    .hero-line-1 {
+      animation-delay: 60ms;
+    }
+
+    .hero-line-2 {
+      animation-delay: 160ms;
+    }
+
+    .hero-line-3 {
+      animation-delay: 260ms;
+    }
+
+    @keyframes heroRise {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero .lede {
+      margin-bottom: var(--space-6);
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: var(--space-3);
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: var(--space-6);
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: var(--space-5);
+      flex-wrap: wrap;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+    }
+
+    .hero-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .hero-meta .dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      animation: subtlePulse 2600ms ease-in-out infinite;
+    }
+
+    .hero-preview {
+      perspective: 1400px;
+      perspective-origin: center center;
+      position: relative;
+    }
+
+    .preview-stage {
+      transform-style: preserve-3d;
+      transition: transform 400ms var(--motion-ease);
+      will-change: transform;
+    }
+
+    .verdict-card {
+      position: relative;
+      padding: var(--space-6);
+      border-radius: var(--radius-lg);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-left: 4px solid var(--color-accent);
+      box-shadow: var(--shadow-card-hi);
+      transform-style: preserve-3d;
+      animation: cardArrive 720ms var(--motion-ease) 120ms both;
+    }
+
+    @keyframes cardArrive {
+      from {
+        opacity: 0;
+        transform: translateY(28px) scale(.97);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .verdict-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(135deg, var(--color-accent-soft), transparent 40%);
+      pointer-events: none;
+    }
+
+    .vc-head {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-4);
+      flex-wrap: wrap;
+    }
+
+    .vc-symbol {
+      color: var(--color-text);
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: .06em;
+    }
+
+    .vc-fresh {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      background: var(--color-surface-2);
+      border: 1px solid var(--color-border);
+      color: var(--color-text-dim);
+      font-size: 10px;
+    }
+
+    .vc-fresh .dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      animation: subtlePulse 2200ms ease-in-out infinite;
+    }
+
+    .vc-verdict {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-3);
+      margin-bottom: var(--space-5);
+    }
+
+    .vc-verdict .glyph {
+      font-family: var(--font-mono);
+      font-size: 32px;
+      line-height: 1;
+      color: var(--color-accent);
+    }
+
+    .vc-verdict .word {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 56px;
+      line-height: .9;
+      letter-spacing: -.03em;
+      color: var(--color-accent);
+    }
+
+    .vc-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+      padding-top: var(--space-4);
+      border-top: 1px solid var(--color-border);
+      margin-bottom: var(--space-4);
+    }
+
+    .vc-metric .k {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      margin-bottom: 4px;
+    }
+
+    .vc-metric .v {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .vc-conf-bar {
+      height: 5px;
+      background: var(--color-surface-2);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .vc-conf-fill {
+      height: 100%;
+      background: var(--color-accent);
+      border-radius: 3px;
+      width: 0;
+      transition: width 800ms var(--motion-ease);
+    }
+
+    .vc-chart {
+      padding: var(--space-4) 0 var(--space-3);
+      border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+      margin-bottom: var(--space-4);
+    }
+
+    .vc-chart canvas {
+      display: block;
+      width: 100%;
+      height: 90px;
+    }
+
+    .vc-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-3);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      flex-wrap: wrap;
+    }
+
+    .preview-back {
+      position: absolute;
+      inset: 12px -8px -12px 8px;
+      border-radius: var(--radius-lg);
+      background: var(--color-surface-2);
+      border: 1px solid var(--color-border);
+      z-index: -1;
+      opacity: .7;
+    }
+
+    /* ── STATS ── */
+    .stats {
+      border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+      padding: var(--space-6) 0;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+
+    @media (max-width: 800px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .stat-cell {
+      padding: var(--space-4) var(--space-5);
+      border-right: 1px solid var(--color-border);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-cell:last-child {
+      border-right: none;
+    }
+
+    @media (max-width: 800px) {
+      .stat-cell:nth-child(2) {
+        border-right: none;
+      }
+
+      .stat-cell:nth-child(3),
+      .stat-cell:nth-child(4) {
+        border-top: 1px solid var(--color-border);
+      }
+    }
+
+    .stat-value {
+      font-family: var(--font-mono);
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      color: var(--color-text);
+      line-height: 1;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .stat-value .unit {
+      font-size: 13px;
+      color: var(--color-text-muted);
+      font-weight: 500;
+      letter-spacing: .06em;
+    }
+
+    .stat-value.is-flashing {
+      animation: statFlash 700ms var(--motion-ease);
+    }
+
+    @keyframes statFlash {
+      0% {
+        color: var(--color-accent);
+      }
+      100% {
+        color: var(--color-text);
+      }
+    }
+
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+    }
+
+    .stat-sparkline {
+      width: 100%;
+      height: 22px;
+      margin-top: var(--space-2);
+      display: block;
+    }
+
+    /* ── PROBLEM ── */
+    .problem-head {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-8);
+      margin-bottom: var(--space-8);
+      align-items: end;
+    }
+
+    @media (max-width: 800px) {
+      .problem-head {
+        grid-template-columns: 1fr;
+        gap: var(--space-4);
+      }
+    }
+
+    .problem-head .lede {
+      max-width: 46ch;
+    }
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-3);
+    }
+
+    @media (max-width: 800px) {
+      .problem-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .problem-card {
+      padding: var(--space-5);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      transition: border-color var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease);
+      position: relative;
+    }
+
+    .problem-card:hover {
+      border-color: var(--color-border-hi);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-card);
+    }
+
+    .problem-card .num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .12em;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+    }
+
+    .problem-card .mini-chart {
+      width: 40px;
+      height: 16px;
+    }
+
+    .problem-card h3 {
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.35;
+      margin-bottom: var(--space-3);
+      letter-spacing: -.01em;
+      color: var(--color-text);
+    }
+
+    .problem-card p {
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--color-text-dim);
+    }
+
+    /* ── HOW IT WORKS ── */
+    .how-head {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-8);
+      margin-bottom: var(--space-8);
+      align-items: end;
+    }
+
+    @media (max-width: 800px) {
+      .how-head {
+        grid-template-columns: 1fr;
+        gap: var(--space-4);
+      }
+    }
+
+    .agent-strip {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+    }
+
+    @media (max-width: 900px) {
+      .agent-strip {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .agent-tile {
+      padding: var(--space-4);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      position: relative;
+      transition: border-color 300ms var(--motion-ease), background 300ms var(--motion-ease), box-shadow 300ms var(--motion-ease);
+    }
+
+    .agent-tile .agent-num {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-3);
+    }
+
+    .agent-tile .agent-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 1.5px solid var(--color-text-muted);
+      background: transparent;
+      margin-bottom: var(--space-3);
+      transition: background 400ms var(--motion-ease), border-color 400ms var(--motion-ease);
+    }
+
+    .agent-tile .agent-name {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -.01em;
+      margin-bottom: 6px;
+      color: var(--color-text);
+    }
+
+    .agent-tile .agent-desc {
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--color-text-muted);
+    }
+
+    .agent-output {
+      margin-top: var(--space-3);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--color-border);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .04em;
+      color: var(--color-accent);
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 400ms var(--motion-ease), transform 400ms var(--motion-ease);
+    }
+
+    .agent-tile.is-live {
+      border-color: color-mix(in srgb, var(--color-accent) 50%, transparent);
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 12%, transparent);
+    }
+
+    .agent-tile.is-live .agent-dot {
+      border-color: var(--color-accent);
+      background: var(--color-accent);
+      box-shadow: 0 0 12px color-mix(in srgb, var(--color-accent) 60%, transparent);
+    }
+
+    .agent-tile.is-live .agent-name {
+      color: var(--color-accent);
+    }
+
+    .agent-tile.is-live .agent-output {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .how-caption {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--color-text-muted);
+      letter-spacing: .06em;
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding-top: var(--space-4);
+      border-top: 1px solid var(--color-border);
+    }
+
+    .how-caption .prog {
+      flex: 1;
+      height: 2px;
+      background: var(--color-surface-2);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .how-caption .prog-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--color-accent);
+      transition: width 500ms var(--motion-ease);
+    }
+
+    /* ── ANATOMY ── */
+    .anatomy {
+      background: var(--color-bg-2);
+      border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .anatomy-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--space-9);
+      align-items: center;
+    }
+
+    @media (max-width: 900px) {
+      .anatomy-inner {
+        grid-template-columns: 1fr;
+        gap: var(--space-6);
+      }
+    }
+
+    .anatomy-rows {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .anatomy-row {
+      display: grid;
+      grid-template-columns: 40px 1fr;
+      gap: var(--space-4);
+      padding: var(--space-4) 0;
+      border-bottom: 1px solid var(--color-border);
+      align-items: start;
+    }
+
+    .anatomy-row:last-child {
+      border-bottom: none;
+    }
+
+    .anatomy-row .num {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      letter-spacing: .06em;
+      color: var(--color-text-muted);
+      padding-top: 2px;
+    }
+
+    .anatomy-row .label {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 4px;
+    }
+
+    .anatomy-row .detail {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--color-text-dim);
+    }
+
+    .anatomy-brief {
+      padding: var(--space-6);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .anatomy-brief::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--color-accent-dim), transparent);
+    }
+
+    .ab-head {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--color-border);
+      margin-bottom: var(--space-4);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .anatomy-chart {
+      display: block;
+      width: 100%;
+      height: 90px;
+      margin-bottom: var(--space-4);
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: var(--space-4);
+    }
+
+    .ab-title {
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 22px;
+      line-height: 1.25;
+      letter-spacing: -.01em;
+      color: var(--color-text);
+      margin-bottom: var(--space-3);
+    }
+
+    .ab-body {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--color-text-dim);
+      margin-bottom: var(--space-4);
+    }
+
+    .ab-h2 {
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: .02em;
+      color: var(--color-text);
+      margin-bottom: var(--space-2);
+      margin-top: var(--space-4);
+      padding-top: var(--space-4);
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .ab-h2 .n {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--color-text-muted);
+    }
+
+    .ab-verdict {
+      display: flex;
+      gap: var(--space-4);
+      align-items: baseline;
+      padding: var(--space-4);
+      background: var(--color-surface-2);
+      border-left: 3px solid var(--color-accent);
+      border-radius: var(--radius-sm);
+      margin-top: var(--space-4);
+    }
+
+    .ab-verdict .word {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--color-accent);
+      letter-spacing: -.01em;
+    }
+
+    .ab-verdict .conf {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+    }
+
+    /* ── SOURCE TRAIL ── */
+    .source-trail-section {
+      border-top: 1px solid var(--color-border);
+    }
+
+    .source-trail {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+      margin-top: var(--space-8);
+    }
+
+    @media (max-width: 800px) {
+      .source-trail {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .st-claims {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .st-claim {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      text-align: left;
+      cursor: pointer;
+      transition: border-color var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease);
+    }
+
+    .st-claim:hover {
+      border-color: var(--color-border-hi);
+      background: var(--color-surface-2);
+      transform: translateX(3px);
+    }
+
+    .st-claim.is-active {
+      border-color: var(--color-accent);
+      background: color-mix(in srgb, var(--color-accent) 4%, var(--color-surface));
+    }
+
+    .st-claim-text {
+      font-size: 15px;
+      color: var(--color-text);
+      font-family: var(--font-sans);
+      line-height: 1.4;
+    }
+
+    .st-claim-text u {
+      text-decoration: underline;
+      text-decoration-color: var(--color-accent);
+      text-underline-offset: 3px;
+      text-decoration-thickness: 1px;
+    }
+
+    .st-claim-source {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    .st-panel {
+      padding: var(--space-6);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      position: relative;
+      min-height: 340px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .st-source {
+      display: none;
+    }
+
+    .st-source.is-active {
+      display: block;
+      animation: panelIn 320ms var(--motion-ease);
+    }
+
+    @keyframes panelIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .st-source-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--color-border);
+      margin-bottom: var(--space-4);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+    }
+
+    .st-source-kind {
+      color: var(--color-accent);
+    }
+
+    .st-source-title {
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 18px;
+      letter-spacing: -.01em;
+      color: var(--color-text);
+      margin-bottom: var(--space-4);
+    }
+
+    .st-source-body {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-bottom: var(--space-4);
+    }
+
+    .st-source-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: var(--space-3);
+      padding: var(--space-3) 0;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .st-source-row:last-child {
+      border-bottom: none;
+    }
+
+    .st-source-row span:first-child {
+      color: var(--color-text-muted);
+      letter-spacing: .02em;
+      flex-shrink: 0;
+    }
+
+    .st-source-row span:last-child {
+      color: var(--color-text);
+      font-weight: 500;
+      text-align: right;
+      line-height: 1.5;
+    }
+
+    .st-source-row.pos span:last-child {
+      color: var(--color-accent);
+    }
+
+    .st-source-row.neg span:last-child {
+      color: var(--color-sell);
+    }
+
+    .st-source-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      border-bottom: 1px solid var(--color-accent);
+      padding-bottom: 2px;
+      transition: color var(--motion-fast) var(--motion-ease);
+    }
+
+    .st-source-link:hover {
+      color: var(--color-accent-hi);
+    }
+
+    .st-source-excerpt {
+      font-size: 13px;
+      line-height: 1.65;
+      color: var(--color-text-dim);
+      padding: var(--space-3);
+      background: var(--color-surface-2);
+      border-left: 2px solid var(--color-accent);
+      border-radius: var(--radius-sm);
+      margin-top: var(--space-3);
+      font-style: italic;
+    }
+
+    /* ── CHAT DEMO ── */
+    .chat-demo-section {
+      border-top: 1px solid var(--color-border);
+      background: var(--color-bg-2);
+    }
+
+    .chat-demo {
+      max-width: 760px;
+      margin: 0 auto;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+
+    .cd-header {
+      padding: var(--space-3) var(--space-5);
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .cd-title {
+      color: var(--color-text);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cd-title .glyph {
+      color: var(--color-accent);
+    }
+
+    .cd-status {
+      color: var(--color-accent);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cd-status::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      animation: subtlePulse 2000ms ease-in-out infinite;
+    }
+
+    .cd-messages {
+      padding: var(--space-5);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .cd-user {
+      align-self: flex-end;
+      padding: 10px 14px;
+      background: var(--color-surface-2);
+      border-radius: var(--radius-md);
+      color: var(--color-text);
+      font-size: 14px;
+      max-width: 82%;
+      animation: fadeIn 400ms var(--motion-ease) 200ms both;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    .cd-tools {
+      align-self: flex-start;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-text-muted);
+      border-left: 2px solid var(--color-border);
+      padding-left: 10px;
+      animation: fadeIn 400ms var(--motion-ease) 700ms both;
+    }
+
+    .cd-tool {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 8px;
+    }
+
+    .cd-tool .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-accent);
+    }
+
+    .cd-tool .time {
+      margin-left: auto;
+      color: var(--color-text-muted);
+      font-size: 10px;
+    }
+
+    .cd-assistant {
+      align-self: flex-start;
+      color: var(--color-text-dim);
+      font-size: 14px;
+      line-height: 1.65;
+      max-width: 88%;
+      animation: fadeIn 600ms var(--motion-ease) 1100ms both;
+    }
+
+    .cd-assistant strong {
+      color: var(--color-text);
+      font-weight: 600;
+    }
+
+    .cd-signal {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: var(--space-3);
+      padding: 5px 11px;
+      border: 1px solid var(--color-accent);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      color: var(--color-accent);
+    }
+
+    .cd-signal .conf {
+      color: var(--color-text-muted);
+      font-weight: 500;
+      margin-left: 4px;
+    }
+
+    /* ── CAPABILITIES ── */
+    .caps-head {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-8);
+      margin-bottom: var(--space-8);
+      align-items: end;
+    }
+
+    @media (max-width: 800px) {
+      .caps-head {
+        grid-template-columns: 1fr;
+        gap: var(--space-4);
+      }
+    }
+
+    .caps-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+    }
+
+    @media (max-width: 700px) {
+      .caps-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .cap-card {
+      perspective: 1000px;
+      position: relative;
+    }
+
+    .cap-inner {
+      padding: var(--space-6);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      transform-style: preserve-3d;
+      transition: border-color var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease);
+      position: relative;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cap-card:hover .cap-inner {
+      border-color: var(--color-border-hi);
+      box-shadow: var(--shadow-card-hi);
+    }
+
+    .cap-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    .cap-num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .14em;
+      color: var(--color-text-muted);
+    }
+
+    .cap-glyph {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      color: var(--color-accent);
+      transition: transform var(--motion-fast) var(--motion-ease);
+    }
+
+    .cap-card:hover .cap-glyph {
+      transform: translateY(-2px) scale(1.08);
+    }
+
+    .cap-title {
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: 22px;
+      letter-spacing: -.02em;
+      color: var(--color-text);
+      margin-bottom: var(--space-3);
+      line-height: 1.15;
+    }
+
+    .cap-desc {
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--color-text-dim);
+      flex: 1;
+    }
+
+    .cap-meta {
+      margin-top: var(--space-4);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--color-border);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .cap-meta .link {
+      color: var(--color-accent);
+    }
+
+    /* ── METHODOLOGY ── */
+    .method-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-4);
+      margin-top: var(--space-8);
+    }
+
+    @media (max-width: 800px) {
+      .method-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .method-card {
+      padding: var(--space-6);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      transition: border-color var(--motion-fast) var(--motion-ease);
+    }
+
+    .method-card:hover {
+      border-color: var(--color-border-hi);
+    }
+
+    .method-card .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      margin-bottom: var(--space-4);
+    }
+
+    .method-card .badge .dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      animation: subtlePulse 2800ms ease-in-out infinite;
+    }
+
+    .method-card h3 {
+      font-family: var(--font-sans);
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -.01em;
+      margin-bottom: var(--space-3);
+      color: var(--color-text);
+    }
+
+    .method-card p {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--color-text-dim);
+    }
+
+    /* ── CTA ── */
+    .cta-section {
+      border-top: 1px solid var(--color-border);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .cta-chart-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: .5;
+      mask-image: radial-gradient(ellipse 80% 100% at 100% 50%, black 20%, transparent 80%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 100% at 100% 50%, black 20%, transparent 80%);
+      z-index: 0;
+    }
+
+    .cta-inner {
+      padding: var(--space-10) 0;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: var(--space-8);
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 800px) {
+      .cta-inner {
+        grid-template-columns: 1fr;
+        gap: var(--space-6);
+      }
+    }
+
+    .cta-inner h2 {
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: clamp(36px, 4.4vw, 56px);
+      line-height: 1.05;
+      letter-spacing: -.03em;
+      color: var(--color-text);
+    }
+
+    .cta-inner h2 .dim {
+      color: var(--color-text-muted);
+    }
+
+    .cta-inner .actions {
+      display: flex;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+      margin-top: var(--space-6);
+    }
+
+    .cta-side {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: .06em;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+    }
+
+    .cta-side div {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .cta-side .check {
+      color: var(--color-accent);
+      font-weight: 700;
+    }
+
+    /* ── FOOTER (ENRICHED) ── */
+    .footer {
+      border-top: 1px solid var(--color-border);
+      padding: var(--space-8) 0 var(--space-6);
+      background: var(--color-bg);
+    }
+
+    .footer-inner {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr;
+      gap: var(--space-6);
+      margin-bottom: var(--space-7);
+    }
+
+    @media (max-width: 900px) {
+      .footer-inner {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-6);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .footer-inner {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .footer-brand-block {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .footer-brand-block .brand {
+      margin-bottom: var(--space-2);
+    }
+
+    .footer-brand-block p {
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--color-text-dim);
+      max-width: 44ch;
+    }
+
+    .footer-status {
+      padding: var(--space-4);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: var(--space-2);
+    }
+
+    .fs-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      letter-spacing: .04em;
+    }
+
+    .fs-row:first-child {
+      color: var(--color-accent);
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .fs-row:first-child .fs-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      margin-right: 6px;
+      animation: subtlePulse 2000ms ease-in-out infinite;
+      vertical-align: middle;
+    }
+
+    .fs-label {
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .fs-value {
+      color: var(--color-text);
+      font-weight: 500;
+    }
+
+    .footer-col h4 {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-3);
+    }
+
+    .footer-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .footer-col a {
+      font-size: 14px;
+      color: var(--color-text-dim);
+      transition: color var(--motion-fast) var(--motion-ease);
+    }
+
+    .footer-col a:hover {
+      color: var(--color-accent);
+    }
+
+    .footer-legal {
+      border-top: 1px solid var(--color-border);
+      padding-top: var(--space-5);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.7;
+      color: var(--color-text-muted);
+      letter-spacing: .02em;
+    }
+
+    .footer-legal p {
+      margin-bottom: var(--space-3);
+      max-width: 100ch;
+    }
+
+    .footer-legal p strong {
+      color: var(--color-text-dim);
+      font-weight: 600;
+    }
+
+    .footer-bottom {
+      margin-top: var(--space-5);
+      padding-top: var(--space-4);
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+    }
+
+    /* ── REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 600ms var(--motion-ease), transform 600ms var(--motion-ease);
+      will-change: opacity, transform;
+    }
+
+    .reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-d1 {
+      transition-delay: 80ms;
+    }
+
+    .reveal-d2 {
+      transition-delay: 160ms;
+    }
+
+    .reveal-d3 {
+      transition-delay: 240ms;
+    }
+
+    .reveal-d4 {
+      transition-delay: 320ms;
+    }
+
+    .reveal-d5 {
+      transition-delay: 400ms;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+      }
+
+      .reveal {
+        opacity: 1 !important;
+        transform: none !important;
+      }
+
+      .preview-stage {
+        transform: none !important;
+      }
+
+      .hero-line {
+        opacity: 1 !important;
+        transform: none !important;
+      }
+
+      .verdict-card {
+        opacity: 1 !important;
+        transform: none !important;
+      }
+
+      .market-strip-track {
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+  <!-- ============================== NAV ============================== -->
+  <nav class="nav" id="nav" aria-label="Primary">
+    <div class="nav-inner">
+      <a href="/" class="brand" aria-label="PSX Intelligence">
+        <span class="brand-mark" aria-hidden="true">PI</span>
+        <span>
+          <div class="brand-name">PSX Intelligence</div>
+          <div class="brand-sub">Research Desk</div>
+        </span>
+      </a>
+      <div class="nav-links">
+        <a href="#how">How it works</a>
+        <a href="#sources">Source trail</a>
+        <a href="#chat">The analyst</a>
+        <a href="#capabilities">Capabilities</a>
+      </div>
+      <div class="nav-actions">
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+          </svg>
+        </button>
+        <a href="index.html" class="btn btn-primary">Open the desk <span class="btn-arrow">→</span></a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ============================== HERO ============================== -->
+    <section class="hero">
+      <canvas class="bg-3d" id="bg-3d" aria-hidden="true"></canvas>
+      <div class="container hero-inner">
+        <div class="hero-copy">
+          <div class="market-strip" aria-hidden="true">
+            <div class="market-strip-track" id="market-strip-track">
+              <span class="ms"><b>LUCK</b>141.19 <span class="up">▲ 2.15%</span></span>
+              <span class="ms"><b>OGDC</b>187.45 <span class="up">▲ 0.82%</span></span>
+              <span class="ms"><b>MEBL</b>288.60 <span class="down">▼ 0.31%</span></span>
+              <span class="ms"><b>PSO</b>312.20 <span class="up">▲ 1.47%</span></span>
+              <span class="ms"><b>ENGRO</b>298.40 <span class="down">▼ 0.62%</span></span>
+              <span class="ms"><b>PPL</b>142.80 <span class="up">▲ 1.10%</span></span>
+              <span class="ms"><b>UBL</b>422.00 <span class="up">▲ 2.26%</span></span>
+              <span class="ms"><b>MLCF</b>71.40 <span class="up">▲ 0.90%</span></span>
+              <span class="ms"><b>FCEPL</b>141.19 <span class="up">▲ 2.15%</span></span>
+              <span class="ms"><b>HUBC</b>168.30 <span class="down">▼ 0.48%</span></span>
+            </div>
+          </div>
+
+          <div class="eyebrow"><span class="bullet"></span>Multi-agent research · Pakistan Stock Exchange</div>
+          <h1 class="h-display">
+            <span class="hero-line hero-line-1">Structured research</span><br />
+            <span class="hero-line hero-line-2">for every PSX equity.</span><br />
+            <span class="hero-line hero-line-3 dim">Every number cited.</span>
+          </h1>
+          <p class="lede reveal">
+            Five specialist AI agents read EOD prices, news, filings, and macro data.
+            A supervisor reconciles their findings into a nine-section brief with a
+            clear verdict, a confidence score, and a source link on every claim — in
+            about twenty seconds.
+          </p>
+          <div class="hero-actions reveal reveal-d1">
+            <a href="index.html" class="btn btn-primary">Open the research desk <span class="btn-arrow">→</span></a>
+            <a href="#how" class="btn btn-secondary">See how it works</a>
+          </div>
+          <div class="hero-meta reveal reveal-d2">
+            <span><span class="dot"></span>EOD data · verified daily</span>
+            <span><span class="dot"></span>Research, not advice</span>
+            <span><span class="dot"></span>No black box</span>
+          </div>
+        </div>
+
+        <div class="hero-preview" id="hero-preview">
+          <div class="preview-stage" id="preview-stage">
+            <div class="preview-back" aria-hidden="true"></div>
+            <div class="verdict-card" id="verdict-card">
+              <div class="vc-head">
+                <span class="vc-symbol">OGDC</span>
+                <span>Oil &amp; Gas Development</span>
+                <span class="vc-fresh"><span class="dot"></span>EOD · 5 Nov</span>
+              </div>
+              <div class="vc-verdict">
+                <span class="glyph" aria-hidden="true">▲</span>
+                <span class="word">BUY</span>
+              </div>
+              <div class="vc-metrics">
+                <div class="vc-metric">
+                  <div class="k">Confidence</div>
+                  <div class="v">72%</div>
+                  <div class="vc-conf-bar"><div class="vc-conf-fill" id="vc-conf"></div></div>
+                </div>
+                <div class="vc-metric">
+                  <div class="k">Horizon</div>
+                  <div class="v">15 d</div>
+                </div>
+              </div>
+              <div class="vc-chart">
+                <canvas id="mini-chart" aria-label="Illustrative price chart"></canvas>
+              </div>
+              <div class="vc-foot">
+                <span>6 sources cited</span>
+                <span>Research · not advice</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== STATS ============================== -->
+    <section class="stats">
+      <div class="container">
+        <div class="stats-grid">
+          <div class="stat-cell reveal">
+            <div class="stat-value"><span data-count="5">5</span><span class="unit">agents</span></div>
+            <div class="stat-label">Per intelligence brief</div>
+            <canvas class="stat-sparkline" data-spark="up"></canvas>
+          </div>
+          <div class="stat-cell reveal reveal-d1">
+            <div class="stat-value"><span data-count="9">9</span><span class="unit">sections</span></div>
+            <div class="stat-label">Structured, sourced</div>
+            <canvas class="stat-sparkline" data-spark="up"></canvas>
+          </div>
+          <div class="stat-cell reveal reveal-d2">
+            <div class="stat-value"><span data-count="1058">1,058</span><span class="unit">equities</span></div>
+            <div class="stat-label">PSX universe screened</div>
+            <canvas class="stat-sparkline" data-spark="flat"></canvas>
+          </div>
+          <div class="stat-cell reveal reveal-d3">
+            <div class="stat-value">EOD<span class="unit">verified</span></div>
+            <div class="stat-label">Freshness-tagged data</div>
+            <canvas class="stat-sparkline" data-spark="up"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== PROBLEM ============================== -->
+    <section class="section" id="problem">
+      <div class="container">
+        <div class="problem-head">
+          <div>
+            <div class="eyebrow reveal"><span class="bullet"></span>What's broken</div>
+            <h2 class="h-section reveal">PSX tooling still asks you to guess.</h2>
+          </div>
+          <p class="lede reveal reveal-d1">
+            Most retail-facing PSX products stop at a price ticker and a "BUY" tag.
+            The reasoning, the stop-loss, and the source of every claim are quietly
+            left out — because producing them is harder than producing a ticker.
+          </p>
+        </div>
+        <div class="problem-grid">
+          <div class="problem-card reveal">
+            <div class="num">01 — Signals without reasoning <canvas class="mini-chart" data-mini="broken"></canvas></div>
+            <h3>A ticker and a direction is not analysis.</h3>
+            <p>You deserve to know which indicator fired, which headline moved sentiment, and which macro variable is in play. Not a black-box "trust me" call.</p>
+          </div>
+          <div class="problem-card reveal reveal-d1">
+            <div class="num">02 — Numbers without sources <canvas class="mini-chart" data-mini="broken"></canvas></div>
+            <h3>Every claim should trace back.</h3>
+            <p>EOD price, news headlines, quarterly filings, macro indicators — every number in a PSX Intelligence brief links back to the table, filing, or article that produced it.</p>
+          </div>
+          <div class="problem-card reveal reveal-d2">
+            <div class="num">03 — No horizon, no stop <canvas class="mini-chart" data-mini="broken"></canvas></div>
+            <h3>A verdict needs a plan attached.</h3>
+            <p>A BUY without a holding period and a stop-loss is a gamble dressed as research. Every brief closes with a verdict, a confidence, and a trading horizon.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== HOW IT WORKS ============================== -->
+    <section class="section anatomy" id="how">
+      <div class="container">
+        <div class="how-head">
+          <div>
+            <div class="eyebrow reveal"><span class="bullet"></span>How it works</div>
+            <h2 class="h-section reveal">Five agents. One supervisor. One brief.</h2>
+          </div>
+          <p class="lede reveal reveal-d1">
+            When you type a ticker, the supervisor dispatches five specialists in
+            parallel. Each fetches its own slice of the evidence. The supervisor then
+            reconciles them into a single sourced report — no marketing language,
+            no invented numbers, no fabricated events.
+          </p>
+        </div>
+
+        <div class="agent-strip" id="agent-strip">
+          <div class="agent-tile reveal" data-agent="market">
+            <div class="agent-num">01</div>
+            <div class="agent-dot"></div>
+            <div class="agent-name">Market data</div>
+            <div class="agent-desc">EOD window, technical stats, period high/low, volume trend.</div>
+            <div class="agent-output">62 rows · PKR 187.45</div>
+          </div>
+          <div class="agent-tile reveal reveal-d1" data-agent="sentiment">
+            <div class="agent-num">02</div>
+            <div class="agent-dot"></div>
+            <div class="agent-name">Sentiment</div>
+            <div class="agent-desc">Recent headlines classified positive, negative, or neutral.</div>
+            <div class="agent-output">8 headlines · +3 / −1</div>
+          </div>
+          <div class="agent-tile reveal reveal-d2" data-agent="risk">
+            <div class="agent-num">03</div>
+            <div class="agent-dot"></div>
+            <div class="agent-name">Risk</div>
+            <div class="agent-desc">Rule-based checks and material risk flags.</div>
+            <div class="agent-output">2 flags · vol 32%</div>
+          </div>
+          <div class="agent-tile reveal reveal-d3" data-agent="macro">
+            <div class="agent-num">04</div>
+            <div class="agent-dot"></div>
+            <div class="agent-name">Macro</div>
+            <div class="agent-desc">Pakistan macro indicators and context.</div>
+            <div class="agent-output">CPI 4.2% · SBP 11%</div>
+          </div>
+          <div class="agent-tile reveal reveal-d4" data-agent="rag">
+            <div class="agent-num">05</div>
+            <div class="agent-dot"></div>
+            <div class="agent-name">Quarterly RAG</div>
+            <div class="agent-desc">Indexed filings — EPS, sales, profit — with page citations.</div>
+            <div class="agent-output">4 chunks · Q1 p.12</div>
+          </div>
+        </div>
+
+        <div class="how-caption">
+          <span>Live investigation · agents run in parallel</span>
+          <div class="prog"><div class="prog-fill" id="how-progress"></div></div>
+          <span class="mono" id="how-time">00:00</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== ANATOMY ============================== -->
+    <section class="section" id="anatomy">
+      <div class="container">
+        <div class="anatomy-inner">
+          <div>
+            <div class="eyebrow reveal"><span class="bullet"></span>Anatomy of a brief</div>
+            <h2 class="h-section reveal">What you actually receive.</h2>
+            <p class="lede reveal reveal-d1" style="margin-top: var(--space-5); margin-bottom: var(--space-6);">
+              One verdict, one confidence, one horizon. Then nine structured sections
+              of evidence behind it. Read the whole thing, or scan the verdict and the
+              key insights — the brief holds up either way.
+            </p>
+            <div class="anatomy-rows reveal reveal-d2">
+              <div class="anatomy-row">
+                <div class="num">01</div>
+                <div>
+                  <div class="label">Verdict</div>
+                  <div class="detail">BUY / SELL / HOLD with a confidence and a holding period. The single most important line in the report.</div>
+                </div>
+              </div>
+              <div class="anatomy-row">
+                <div class="num">02</div>
+                <div>
+                  <div class="label">Executive summary</div>
+                  <div class="detail">Two to four sentences. Written for the reader who has thirty seconds.</div>
+                </div>
+              </div>
+              <div class="anatomy-row">
+                <div class="num">03</div>
+                <div>
+                  <div class="label">Market performance</div>
+                  <div class="detail">Price action, volume trend, RSI, MACD, Bollinger Band — with the numbers that fed them.</div>
+                </div>
+              </div>
+              <div class="anatomy-row">
+                <div class="num">04</div>
+                <div>
+                  <div class="label">News, sentiment, macro, filings</div>
+                  <div class="detail">Each evidence channel gets its own section. Every claim cites the source.</div>
+                </div>
+              </div>
+              <div class="anatomy-row">
+                <div class="num">05</div>
+                <div>
+                  <div class="label">Risk and limitations</div>
+                  <div class="detail">What the report could not check. What could invalidate the view. Always explicit.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="anatomy-brief reveal">
+            <div class="ab-head"><span>Intelligence brief · OGDC</span><span>EOD · 5 Nov</span></div>
+            <canvas class="anatomy-chart" id="anatomy-chart" aria-label="Animated candlestick chart"></canvas>
+            <div class="ab-title">OGDC is trading at PKR 187.45 with RSI recovering and volume above the 30-day average.</div>
+            <div class="ab-body">
+              MACD is positive, the 20-day moving average is holding, and the last two
+              sessions printed above-average volume. The setup is constructive, but the
+              50-day average remains just overhead — a stage entry is safer than a single fill.
+            </div>
+            <div class="ab-h2"><span class="n">01</span><span>Executive Summary</span></div>
+            <div class="ab-body" style="margin-bottom: 0;">
+              Short-term momentum is aligned with the medium-term trend. The current
+              confidence reflects a clean technical setup without a broken weekly structure.
+            </div>
+            <div class="ab-verdict"><span class="word">▲ BUY</span><span class="conf">Confidence 0.72 · 15 trading days</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== SOURCE TRAIL (NEW) ============================== -->
+    <section class="section source-trail-section" id="sources">
+      <div class="container">
+        <div class="problem-head">
+          <div>
+            <div class="eyebrow reveal"><span class="bullet"></span>Source trail</div>
+            <h2 class="h-section reveal">Every number traces back.</h2>
+          </div>
+          <p class="lede reveal reveal-d1">
+            Click any claim in the brief. The panel shows exactly where that number
+            came from — the PSX page, the computed indicator, the news article, or
+            the exact PDF page. If we can't cite it, we don't print it.
+          </p>
+        </div>
+
+        <div class="source-trail">
+          <div class="st-claims" id="st-claims">
+            <button class="st-claim is-active reveal" data-source="psx" type="button">
+              <span class="st-claim-text">LUCK trades at <u>PKR 141.19</u></span>
+              <span class="st-claim-source">↗ PSX Portal</span>
+            </button>
+            <button class="st-claim reveal reveal-d1" data-source="rsi" type="button">
+              <span class="st-claim-text">RSI(14) reading <u>58.4</u></span>
+              <span class="st-claim-source">↗ Computed · EOD</span>
+            </button>
+            <button class="st-claim reveal reveal-d2" data-source="news" type="button">
+              <span class="st-claim-text"><u>3 headlines</u> matched LUCK</span>
+              <span class="st-claim-source">↗ Business Recorder</span>
+            </button>
+            <button class="st-claim reveal reveal-d3" data-source="pdf" type="button">
+              <span class="st-claim-text">Q1 2026 EPS at <u>PKR 18.20</u></span>
+              <span class="st-claim-source">↗ Q1 Report · p.12</span>
+            </button>
+          </div>
+
+          <div class="st-panel reveal">
+            <!-- PSX Portal -->
+            <div class="st-source is-active" data-panel="psx">
+              <div class="st-source-header"><span class="st-source-kind">PSX Portal · EOD</span><span>5 Nov 2026 · 08:15 PKT</span></div>
+              <div class="st-source-title">LUCK — Lucky Cement Limited</div>
+              <div class="st-source-body">
+                <div class="st-source-row"><span>Close</span><span>PKR 141.19</span></div>
+                <div class="st-source-row"><span>Open</span><span>PKR 139.50</span></div>
+                <div class="st-source-row"><span>High</span><span>PKR 142.80</span></div>
+                <div class="st-source-row"><span>Low</span><span>PKR 138.90</span></div>
+                <div class="st-source-row"><span>Volume</span><span>1,240,000 shares</span></div>
+              </div>
+              <a href="#" class="st-source-link" onclick="return false;">↗ Open PSX Portal</a>
+            </div>
+
+            <!-- RSI -->
+            <div class="st-source" data-panel="rsi">
+              <div class="st-source-header"><span class="st-source-kind">Computed indicator</span><span>Wilder 14-day</span></div>
+              <div class="st-source-title">RSI(14) on LUCK = 58.4</div>
+              <div class="st-source-body">
+                <div class="st-source-row"><span>Formula</span><span>100 − 100 / (1 + RS)</span></div>
+                <div class="st-source-row"><span>RS</span><span>avg gain ÷ avg loss</span></div>
+                <div class="st-source-row"><span>Window</span><span>14 sessions · EOD</span></div>
+                <div class="st-source-row pos"><span>Reading</span><span>58.4 — healthy range</span></div>
+              </div>
+              <a href="#" class="st-source-link" onclick="return false;">↗ View methodology</a>
+            </div>
+
+            <!-- News -->
+            <div class="st-source" data-panel="news">
+              <div class="st-source-header"><span class="st-source-kind">News · classified</span><span>Last 7 days</span></div>
+              <div class="st-source-title">3 headlines mention LUCK</div>
+              <div class="st-source-body">
+                <div class="st-source-row pos"><span>[Positive]</span><span>Lucky Cement reports 12% YoY profit growth in Q1</span></div>
+                <div class="st-source-row"><span>[Neutral]</span><span>Cement prices stable despite rising coal costs</span></div>
+                <div class="st-source-row neg"><span>[Negative]</span><span>Cement sector faces margin pressure from rupee slide</span></div>
+              </div>
+              <a href="#" class="st-source-link" onclick="return false;">↗ Read on Business Recorder</a>
+            </div>
+
+            <!-- PDF -->
+            <div class="st-source" data-panel="pdf">
+              <div class="st-source-header"><span class="st-source-kind">Quarterly report · PDF</span><span>Q1 2026 · page 12</span></div>
+              <div class="st-source-title">LUCK Q1 2026 — Earnings per share</div>
+              <div class="st-source-body">
+                <div class="st-source-row"><span>EPS</span><span>PKR 18.20</span></div>
+                <div class="st-source-row"><span>Sales</span><span>PKR 84.7 bn</span></div>
+                <div class="st-source-row"><span>PAT</span><span>PKR 12.6 bn</span></div>
+              </div>
+              <div class="st-source-excerpt">"Basic earnings per share for the quarter ended September 30, 2026 was PKR 18.20."</div>
+              <a href="#" class="st-source-link" onclick="return false;" style="margin-top: var(--space-4);">↗ View PDF · page 12</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== CHAT DEMO (NEW) ============================== -->
+    <section class="section chat-demo-section" id="chat">
+      <div class="container">
+        <div class="problem-head">
+          <div>
+            <div class="eyebrow reveal"><span class="bullet"></span>The analyst</div>
+            <h2 class="h-section reveal">Ask in plain English.<br />Get a cited answer.</h2>
+          </div>
+          <p class="lede reveal reveal-d1">
+            The assistant is not a black box. Every tool it runs is visible. Every
+            number in its answer links back to the same evidence a full brief uses.
+            Scope is limited to PSX-listed equities — no crypto, no forex, no noise.
+          </p>
+        </div>
+
+        <div class="chat-demo reveal">
+          <div class="cd-header">
+            <div class="cd-title"><span class="glyph" aria-hidden="true">◐</span>Conversational analyst</div>
+            <div class="cd-status">Live</div>
+          </div>
+          <div class="cd-messages">
+            <div class="cd-user">How is LUCK positioned for the next quarter?</div>
+            <div class="cd-tools">
+              <div class="cd-tool"><span class="dot"></span><span>get_price</span><span class="time">0.2s</span></div>
+              <div class="cd-tool"><span class="dot"></span><span>get_news</span><span class="time">0.8s</span></div>
+              <div class="cd-tool"><span class="dot"></span><span>get_financials</span><span class="time">1.1s</span></div>
+            </div>
+            <div class="cd-assistant">
+              Lucky Cement is trading at <strong>PKR 141.19</strong>, up 2.15% on the
+              last session. Q1 profit rose 12% YoY and the current daily volume is
+              roughly 1.4× the 30-day average. RSI at 58 leaves room before
+              overbought, and MACD remains positive. The setup is constructive but
+              the entry is stretched — a pullback toward PKR 134 would offer a
+              better risk-reward.
+              <div class="cd-signal">▲ BUY <span class="conf">conf 0.78</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== CAPABILITIES ============================== -->
+    <section class="section" id="capabilities">
+      <div class="container">
+        <div class="caps-head">
+          <div>
+            <div class="eyebrow reveal"><span class="bullet"></span>Capabilities</div>
+            <h2 class="h-section reveal">Four surfaces. One research desk.</h2>
+          </div>
+          <p class="lede reveal reveal-d1">
+            Everything you need to go from "I don't know" to "I understand" — without
+            adding another tab to your browser. Deep dive one ticker, compare up to
+            five side-by-side, screen the universe, or ask the analyst directly.
+          </p>
+        </div>
+        <div class="caps-grid">
+          <div class="cap-card reveal">
+            <div class="cap-inner">
+              <div class="cap-head"><span class="cap-num">01 · Analyze</span><span class="cap-glyph" aria-hidden="true">◫</span></div>
+              <div class="cap-title">A nine-section intelligence brief for one ticker.</div>
+              <p class="cap-desc">Five agents. One verdict. Every claim sourced. The full report, not the summary.</p>
+              <div class="cap-meta"><span>Full report + chart + sources</span><a class="link" href="/">Open →</a></div>
+            </div>
+          </div>
+          <div class="cap-card reveal reveal-d1">
+            <div class="cap-inner">
+              <div class="cap-head"><span class="cap-num">02 · Compare</span><span class="cap-glyph" aria-hidden="true">⇄</span></div>
+              <div class="cap-title">Two to five tickers, side by side.</div>
+              <p class="cap-desc">Normalized performance charts, return correlation, and a comparative observation — with the technical scope boundary made explicit.</p>
+              <div class="cap-meta"><span>Up to 5 tickers · 90d window</span><a class="link" href="/#/compare">Open →</a></div>
+            </div>
+          </div>
+          <div class="cap-card reveal reveal-d2">
+            <div class="cap-inner">
+              <div class="cap-head"><span class="cap-num">03 · Screen</span><span class="cap-glyph" aria-hidden="true">★</span></div>
+              <div class="cap-title">A pure-math screen, no narrative.</div>
+              <p class="cap-desc">Ranked technical candidates across the full PSX universe. Every score broken down. Every rejection explained.</p>
+              <div class="cap-meta"><span>Full universe · 3 profiles</span><a class="link" href="/#/screen">Open →</a></div>
+            </div>
+          </div>
+          <div class="cap-card reveal reveal-d3">
+            <div class="cap-inner">
+              <div class="cap-head"><span class="cap-num">04 · Chat</span><span class="cap-glyph" aria-hidden="true">◐</span></div>
+              <div class="cap-title">A conversational analyst for PSX.</div>
+              <p class="cap-desc">Ask about a ticker, a sector, or a concept. Tool calls are visible. Sources are cited. Scope is limited to PSX-listed equities.</p>
+              <div class="cap-meta"><span>Tool-visible · cited</span><a class="link" href="/#/chat">Open →</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== METHODOLOGY ============================== -->
+    <section class="section" id="methodology" style="border-top: 1px solid var(--color-border);">
+      <div class="container">
+        <div class="problem-head">
+          <div>
+            <div class="eyebrow reveal"><span class="bullet"></span>Methodology</div>
+            <h2 class="h-section reveal">What we will, and won't, claim.</h2>
+          </div>
+          <p class="lede reveal reveal-d1">
+            A confidence score that means something is worth more than a glowing one
+            that means nothing. Three things we commit to — and one we refuse to do.
+          </p>
+        </div>
+        <div class="method-grid">
+          <div class="method-card reveal">
+            <div class="badge"><span class="dot"></span>Cite everything</div>
+            <h3>Every number traces to a source.</h3>
+            <p>EOD prices link to the PSX Portal. Headlines link to the outlet that ran them. Quarterly figures link to the exact PDF and page. If we can't cite it, we don't print it.</p>
+          </div>
+          <div class="method-card reveal reveal-d1">
+            <div class="badge"><span class="dot"></span>Show limitations</div>
+            <h3>Every brief has an "Analytical Limitations" section.</h3>
+            <p>What the report could not check. What would invalidate the view. What evidence was thin. Missing data is never silently skipped — it is explicitly named.</p>
+          </div>
+          <div class="method-card reveal reveal-d2">
+            <div class="badge"><span class="dot"></span>Research, not advice</div>
+            <h3>We are not a broker, an advisor, or a signal service.</h3>
+            <p>PSX Intelligence produces structured research. It does not execute orders, is not SECP-licensed, and is not affiliated with the Pakistan Stock Exchange. The verdict is a view — not a guarantee.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== CTA ============================== -->
+    <section class="section cta-section">
+      <canvas class="cta-chart-bg" id="cta-chart" aria-hidden="true"></canvas>
+      <div class="container cta-inner">
+        <div>
+          <h2 class="reveal">Stop guessing.<br /><span class="dim">Start reading.</span></h2>
+          <div class="actions reveal reveal-d1">
+            <a href="index.html" class="btn btn-primary">Open the research desk <span class="btn-arrow">→</span></a>
+            <a href="#how" class="btn btn-secondary">Read the workflow</a>
+          </div>
+        </div>
+        <div class="cta-side reveal reveal-d2">
+          <div><span class="check">—</span> Free to open, no card</div>
+          <div><span class="check">—</span> Works in the browser, no install</div>
+          <div><span class="check">—</span> Every claim cited</div>
+          <div><span class="check">—</span> Research, not advice</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================== FOOTER (ENRICHED) ============================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand-block">
+          <a href="/" class="brand" aria-label="PSX Intelligence">
+            <span class="brand-mark" aria-hidden="true">PI</span>
+            <span>
+              <div class="brand-name">PSX Intelligence</div>
+              <div class="brand-sub">Research Desk</div>
+            </span>
+          </a>
+          <p>Multi-agent research for the Pakistan Stock Exchange. Structured briefs, cited evidence, and a clear verdict on every PSX equity you care about.</p>
+          <div class="footer-status" aria-label="Desk status">
+            <div class="fs-row"><span><span class="fs-dot"></span>Desk status: Operational</span></div>
+            <div class="fs-row"><span class="fs-label">Last sync</span><span class="fs-value">5 Nov · 08:15 PKT</span></div>
+            <div class="fs-row"><span class="fs-label">Next run</span><span class="fs-value">6:00 PM PKT</span></div>
+            <div class="fs-row"><span class="fs-label">Universe</span><span class="fs-value">1,058 equities</span></div>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Product</h4>
+          <ul>
+            <li><a href="/">Analyze</a></li>
+            <li><a href="/#/compare">Compare</a></li>
+            <li><a href="/#/screen">Screen</a></li>
+            <li><a href="/#/chat">Chat</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Learn</h4>
+          <ul>
+            <li><a href="#how">How it works</a></li>
+            <li><a href="#sources">Source trail</a></li>
+            <li><a href="#chat">The analyst</a></li>
+            <li><a href="#methodology">Methodology</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Contact</a></li>
+            <li><a href="#">Privacy</a></li>
+            <li><a href="#">Terms</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-legal">
+        <p><strong>Non-affiliation.</strong> PSX Intelligence is an independent software product. It is not affiliated with, endorsed by, or connected to the Pakistan Stock Exchange (PSX), the Securities and Exchange Commission of Pakistan (SECP), or any government body. "PSX" in our name refers to our focus on Pakistan Stock Exchange-listed equities — not to the exchange itself.</p>
+        <p><strong>Research, not advice.</strong> PSX Intelligence produces AI-assisted research and data visualisation. It is not a broker, an investment advisor, or a licensed signal service. Everything in the product is for informational and educational purposes only. Past performance does not guarantee future results. Verify any fact against its primary source before acting on it.</p>
+        <div class="footer-bottom">
+          <span>© 2026 PSX Intelligence · Independent research platform</span>
+          <span>EOD data · verified daily</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <button class="back-to-top" id="back-to-top" type="button" aria-label="Back to top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path d="M12 19V5M5 12l7-7 7 7" />
+    </svg>
+  </button>
+
+  <script>
+    'use strict';
+
+    const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function cssVar(n) {
+      return getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+    }
+
+    /* ── THEME ── */
+    (function () {
+      try {
+        const s = localStorage.getItem('psx-landing-theme');
+        if (s === 'light' || s === 'dark') {
+          document.documentElement.dataset.theme = s;
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', s === 'light' ? '#f7faf5' : '#0a0f0c');
+        }
+      } catch {}
+
+      const btn = document.getElementById('theme-toggle');
+      if (!btn) return;
+
+      btn.addEventListener('click', () => {
+        const cur = document.documentElement.dataset.theme || 'dark';
+        const next = cur === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', next === 'light' ? '#f7faf5' : '#0a0f0c');
+        try {
+          localStorage.setItem('psx-landing-theme', next);
+        } catch {}
+        drawMiniChart(false);
+        drawAnatomyChart(false);
+        drawStatSparklines(false);
+        drawCtaChart(false);
+        drawProblemCharts();
+      });
+    })();
+
+    /* ── SCROLL UI ── */
+    (function () {
+      const progress = document.getElementById('scroll-progress');
+      const backTop = document.getElementById('back-to-top');
+      const nav = document.getElementById('nav');
+      let ticking = false;
+
+      function update() {
+        const top = window.scrollY || document.documentElement.scrollTop;
+        const h = document.documentElement.scrollHeight - window.innerHeight;
+        const ratio = h > 0 ? Math.min(1, Math.max(0, top / h)) : 0;
+        if (progress) progress.style.transform = `scaleX(${ratio.toFixed(4)})`;
+        if (backTop) backTop.classList.toggle('is-visible', top > 400);
+        if (nav) nav.classList.toggle('is-scrolled', top > 20);
+        ticking = false;
+      }
+
+      function onScroll() {
+        if (!ticking) {
+          requestAnimationFrame(update);
+          ticking = true;
+        }
+      }
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll, { passive: true });
+      update();
+
+      if (backTop) {
+        backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+      }
+    })();
+
+    /* ── MARKET STRIP — duplicate content for seamless loop ── */
+    (function () {
+      const track = document.getElementById('market-strip-track');
+      if (!track) return;
+      track.innerHTML = track.innerHTML + track.innerHTML;
+    })();
+
+    /* ── 3D SCENE: wireframes + candlesticks + bar chart + orbit rings + tickers ── */
+    (function init3D() {
+      const canvas = document.getElementById('bg-3d');
+      if (!canvas || window.matchMedia('(max-width: 900px)').matches) return;
+
+      const ctx = canvas.getContext('2d');
+      let W = 0, H = 0, DPR = 1, rafId = null;
+
+      function resize() {
+        DPR = window.devicePixelRatio || 1;
+        const r = canvas.getBoundingClientRect();
+        W = Math.max(r.width || 800, 400);
+        H = Math.max(r.height || 600, 300);
+        canvas.width = W * DPR;
+        canvas.height = H * DPR;
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.scale(DPR, DPR);
+      }
+
+      resize();
+      window.addEventListener('resize', resize, { passive: true });
+
+      const phi = (1 + Math.sqrt(5)) / 2;
+      const norm = (vs) => vs.map(v => {
+        const l = Math.hypot(v[0], v[1], v[2]) || 1;
+        return [v[0] / l, v[1] / l, v[2] / l];
+      });
+
+      const SHAPES = {
+        cube: {
+          verts: norm([
+            [-1, -1, -1], [-1, -1, 1], [-1, 1, -1], [-1, 1, 1],
+            [1, -1, -1], [1, -1, 1], [1, 1, -1], [1, 1, 1]
+          ]),
+          edges: [
+            [0, 1], [0, 2], [0, 4], [1, 3], [1, 5], [2, 3],
+            [2, 6], [3, 7], [4, 5], [4, 6], [5, 7], [6, 7]
+          ]
+        },
+        octahedron: {
+          verts: norm([
+            [1, 0, 0], [-1, 0, 0], [0, 1, 0],
+            [0, -1, 0], [0, 0, 1], [0, 0, -1]
+          ]),
+          edges: [
+            [0, 2], [0, 3], [0, 4], [0, 5], [1, 2], [1, 3],
+            [1, 4], [1, 5], [2, 4], [2, 5], [3, 4], [3, 5]
+          ]
+        },
+        tetrahedron: {
+          verts: norm([
+            [1, 1, 1], [1, -1, -1], [-1, 1, -1], [-1, -1, 1]
+          ]),
+          edges: [
+            [0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]
+          ]
+        },
+        icosahedron: {
+          verts: norm([
+            [-1, phi, 0], [1, phi, 0], [-1, -phi, 0], [1, -phi, 0],
+            [0, -1, phi], [0, 1, phi], [0, -1, -phi], [0, 1, -phi],
+            [phi, 0, -1], [phi, 0, 1], [-phi, 0, -1], [-phi, 0, 1]
+          ]),
+          edges: [
+            [0, 1], [0, 5], [0, 7], [0, 10], [0, 11], [1, 5], [1, 7], [1, 8], [1, 9],
+            [2, 3], [2, 4], [2, 6], [2, 10], [2, 11], [3, 4], [3, 6], [3, 8], [3, 9],
+            [4, 5], [4, 9], [4, 11], [5, 9], [5, 11], [6, 7], [6, 8], [6, 10], [7, 8],
+            [7, 10], [8, 9], [10, 11]
+          ]
+        }
+      };
+
+      const makeCandleVerts = () => norm([
+        [-0.22, -0.55, -0.22], [0.22, -0.55, -0.22], [-0.22, 0.55, -0.22], [0.22, 0.55, -0.22],
+        [-0.22, -0.55, 0.22], [0.22, -0.55, 0.22], [-0.22, 0.55, 0.22], [0.22, 0.55, 0.22]
+      ]);
+
+      const CANDLE_EDGES = [
+        [0, 1], [2, 3], [4, 5], [6, 7], [0, 2], [1, 3],
+        [4, 6], [5, 7], [0, 4], [1, 5], [2, 6], [3, 7]
+      ];
+
+      const OBJECTS = [
+        { kind: 'wire', shape: 'icosahedron', x: 0.74, y: 0.42, radius: 0.20, speedX: 0.28, speedY: 0.46, alpha: 0.95, phase: 0.0 },
+        { kind: 'wire', shape: 'octahedron', x: 0.12, y: 0.58, radius: 0.10, speedX: -0.35, speedY: 0.22, alpha: 0.60, phase: 1.2 },
+        { kind: 'wire', shape: 'tetrahedron', x: 0.56, y: 0.84, radius: 0.07, speedX: 0.42, speedY: -0.28, alpha: 0.65, phase: 2.4 },
+        { kind: 'wire', shape: 'icosahedron', x: 0.38, y: 0.12, radius: 0.055, speedX: 0.32, speedY: 0.40, alpha: 0.55, phase: 4.8 },
+        { kind: 'wire', shape: 'cube', x: 0.06, y: 0.84, radius: 0.045, speedX: -0.28, speedY: 0.34, alpha: 0.48, phase: 6.2 },
+        { kind: 'wire', shape: 'octahedron', x: 0.50, y: 0.06, radius: 0.042, speedX: 0.36, speedY: -0.22, alpha: 0.52, phase: 7.8 },
+        { kind: 'candle', color: 'accent', x: 0.90, y: 0.76, radius: 0.10, speedX: -0.24, speedY: 0.36, alpha: 0.85, phase: 3.6, wickUp: 1.7, wickDown: -1.7 },
+        { kind: 'candle', color: 'sell', x: 0.22, y: 0.22, radius: 0.075, speedX: 0.30, speedY: -0.34, alpha: 0.72, phase: 5.4, wickUp: 1.6, wickDown: -1.9 },
+        { kind: 'candle', color: 'accent', x: 0.42, y: 0.62, radius: 0.055, speedX: -0.30, speedY: 0.42, alpha: 0.55, phase: 8.6, wickUp: 1.8, wickDown: -1.5 },
+        { kind: 'barchart', x: 0.06, y: 0.22, radius: 0.075, speedX: 0.26, speedY: 0.30, alpha: 0.68, phase: 2.0 },
+        // Orbit rings around main icosahedron
+        { kind: 'orbit', x: 0.74, y: 0.42, radius: 0.20, tiltX: 0.4, tiltY: 0.2, alpha: 0.30, phase: 0.0 },
+        { kind: 'orbit', x: 0.74, y: 0.42, radius: 0.20, tiltX: 0.8, tiltY: 0.6, alpha: 0.22, phase: 1.5 },
+        { kind: 'orbit', x: 0.74, y: 0.42, radius: 0.20, tiltX: 0.2, tiltY: 1.2, alpha: 0.18, phase: 3.0 },
+        // Orbiting tickers around main icosahedron
+        { kind: 'ticker', x: 0.74, y: 0.42, radius: 0.20, label: 'LUCK', speed: 0.15, alpha: 0.70, phase: 0.0 },
+        { kind: 'ticker', x: 0.74, y: 0.42, radius: 0.20, label: 'OGDC', speed: 0.15, alpha: 0.70, phase: 1.57 },
+        { kind: 'ticker', x: 0.74, y: 0.42, radius: 0.20, label: 'MEBL', speed: 0.15, alpha: 0.65, phase: 3.14 },
+        { kind: 'ticker', x: 0.74, y: 0.42, radius: 0.20, label: 'PSO', speed: 0.15, alpha: 0.65, phase: 4.71 },
+        { kind: 'ticker', x: 0.74, y: 0.42, radius: 0.20, label: 'ENGRO', speed: 0.10, alpha: 0.55, phase: 5.5 }
+      ];
+
+      let time = 0;
+
+      function project(v, rotX, rotY, cx, cy, radius) {
+        const cyw = Math.cos(rotY), syw = Math.sin(rotY);
+        const x1 = v[0] * cyw - v[2] * syw;
+        const z1 = v[0] * syw + v[2] * cyw;
+        const cp = Math.cos(rotX), sp = Math.sin(rotX);
+        const y2 = v[1] * cp - z1 * sp;
+        const z2 = v[1] * sp + z1 * cp;
+        const focal = 3;
+        const scale = focal / (z2 + focal);
+        return {
+          x: cx + x1 * scale * radius,
+          y: cy + y2 * scale * radius,
+          z: z2,
+          scale
+        };
+      }
+
+      function drawEdges(edges, projected, alphaMult, color) {
+        const sorted = edges
+          .map(([i, j]) => ({ i, j, z: (projected[i].z + projected[j].z) / 2 }))
+          .sort((a, b) => a.z - b.z);
+
+        ctx.lineWidth = 0.9;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = color;
+
+        sorted.forEach(({ i, j, z }) => {
+          const a = Math.max(0.04, 0.22 - z * 0.09);
+          ctx.globalAlpha = a * alphaMult;
+          ctx.beginPath();
+          ctx.moveTo(projected[i].x, projected[i].y);
+          ctx.lineTo(projected[j].x, projected[j].y);
+          ctx.stroke();
+        });
+
+        ctx.fillStyle = color;
+        projected.forEach(p => {
+          const a = Math.max(0.12, 0.55 - p.z * 0.22);
+          ctx.globalAlpha = a * alphaMult;
+          const r = Math.max(0.8, 2.0 * p.scale);
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      }
+
+      function drawObject(o, accent, sell) {
+        const rotX = time * o.speedX + Math.sin(time * 0.22 + o.phase) * 0.28;
+        const rotY = time * o.speedY + Math.cos(time * 0.16 + o.phase) * 0.32;
+        const cx = W * o.x + Math.sin(time * 0.24 + o.phase) * 12;
+        const cy = H * o.y + Math.cos(time * 0.32 + o.phase) * 9;
+        const radius = Math.min(W, H) * o.radius;
+
+        if (o.kind === 'wire') {
+          const shape = SHAPES[o.shape];
+          if (!shape) return;
+          const p = shape.verts.map(v => project(v, rotX, rotY, cx, cy, radius));
+          drawEdges(shape.edges, p, o.alpha, accent);
+        } else if (o.kind === 'candle') {
+          const color = o.color === 'sell' ? sell : accent;
+          const verts = makeCandleVerts();
+          const p = verts.map(v => project(v, rotX, rotY, cx, cy, radius));
+          drawEdges(CANDLE_EDGES, p, o.alpha, color);
+          const wpT = project([0, o.wickUp, 0], rotX, rotY, cx, cy, radius);
+          const wpB = project([0, o.wickDown, 0], rotX, rotY, cx, cy, radius);
+          ctx.globalAlpha = 0.55 * o.alpha;
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 1.1;
+          ctx.beginPath();
+          ctx.moveTo(wpT.x, wpT.y);
+          ctx.lineTo(wpB.x, wpB.y);
+          ctx.stroke();
+        } else if (o.kind === 'barchart') {
+          const bars = [
+            { x: -0.4, h: 0.4, b: -0.8 },
+            { x: 0, h: 0.9, b: -0.8 },
+            { x: 0.4, h: 0.6, b: -0.8 }
+          ];
+          bars.forEach(bar => {
+            const barVerts = [
+              [bar.x - 0.18, bar.b, -0.18], [bar.x + 0.18, bar.b, -0.18], [bar.x - 0.18, bar.b + bar.h, -0.18], [bar.x + 0.18, bar.b + bar.h, -0.18],
+              [bar.x - 0.18, bar.b, 0.18], [bar.x + 0.18, bar.b, 0.18], [bar.x - 0.18, bar.b + bar.h, 0.18], [bar.x + 0.18, bar.b + bar.h, 0.18]
+            ];
+            const edges = [
+              [0, 1], [2, 3], [4, 5], [6, 7], [0, 2], [1, 3],
+              [4, 6], [5, 7], [0, 4], [1, 5], [2, 6], [3, 7]
+            ];
+            const p = barVerts.map(v => project(v, rotX, rotY, cx, cy, radius));
+            drawEdges(edges, p, o.alpha, accent);
+          });
+        } else if (o.kind === 'orbit') {
+          const tiltX = o.tiltX + time * 0.05 + Math.sin(time * 0.11 + o.phase) * 0.15;
+          const tiltY = o.tiltY + time * 0.08 + Math.cos(time * 0.14 + o.phase) * 0.2;
+          const ocx = W * o.x + Math.sin(time * 0.18 + o.phase) * 6;
+          const ocy = H * o.y + Math.cos(time * 0.22 + o.phase) * 5;
+          const r = Math.min(W, H) * o.radius * 1.4;
+          const seg = 64;
+          ctx.strokeStyle = accent;
+          ctx.lineWidth = 0.6;
+          ctx.globalAlpha = o.alpha;
+          ctx.beginPath();
+          for (let i = 0; i <= seg; i++) {
+            const t = (i / seg) * Math.PI * 2;
+            const p = project([Math.cos(t), 0, Math.sin(t)], tiltX, tiltY, ocx, ocy, r);
+            if (i === 0) ctx.moveTo(p.x, p.y);
+            else ctx.lineTo(p.x, p.y);
+          }
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+        } else if (o.kind === 'ticker') {
+          const angle = time * o.speed + o.phase;
+          const ocx = W * o.x;
+          const ocy = H * o.y;
+          const r = Math.min(W, H) * o.radius * 1.4;
+          const px = ocx + Math.cos(angle) * r;
+          const py = ocy + Math.sin(angle) * r * 0.42;
+          ctx.fillStyle = accent;
+          ctx.globalAlpha = o.alpha;
+          ctx.font = "10px 'JetBrains Mono', monospace";
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(o.label, px, py);
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      function drawFrame() {
+        if (W < 10 || H < 10) return;
+        ctx.clearRect(0, 0, W, H);
+        const accent = cssVar('--color-accent') || '#b8ff3d';
+        const sell = cssVar('--color-sell') || '#ff5b5b';
+        OBJECTS.forEach(o => drawObject(o, accent, sell));
+        ctx.globalAlpha = 1;
+      }
+
+      function tick() {
+        drawFrame();
+        time += 0.003;
+        rafId = requestAnimationFrame(tick);
+      }
+
+      if (REDUCED) {
+        drawFrame();
+        return;
+      }
+
+      const heroSection = canvas.closest('.hero');
+      let visible = true;
+      if (heroSection && 'IntersectionObserver' in window) {
+        new IntersectionObserver((entries) => {
+          entries.forEach(e => {
+            if (e.isIntersecting && !visible) {
+              visible = true;
+              if (!rafId) tick();
+            } else if (!e.isIntersecting && visible) {
+              visible = false;
+              if (rafId) {
+                cancelAnimationFrame(rafId);
+                rafId = null;
+              }
+            }
+          });
+        }, { threshold: 0 }).observe(heroSection);
+      }
+      tick();
+    })();
+
+    /* ── REVEAL ── */
+    (function () {
+      if (REDUCED || !('IntersectionObserver' in window)) {
+        document.querySelectorAll('.reveal').forEach(el => el.classList.add('is-visible'));
+        return;
+      }
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('is-visible');
+            obs.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+      document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+    })();
+
+    /* ── HERO TILT ── */
+    (function () {
+      if (REDUCED) return;
+      const stage = document.getElementById('preview-stage');
+      const host = document.getElementById('hero-preview');
+      if (!stage || !host) return;
+      host.addEventListener('mousemove', (e) => {
+        const r = host.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - 0.5;
+        const y = (e.clientY - r.top) / r.height - 0.5;
+        stage.style.transform = `perspective(1400px) rotateX(${(-y * 4).toFixed(2)}deg) rotateY(${(x * 4).toFixed(2)}deg)`;
+      });
+      host.addEventListener('mouseleave', () => {
+        stage.style.transform = 'perspective(1400px) rotateX(0deg) rotateY(0deg)';
+      });
+    })();
+
+    /* ── CAP CARD TILT ── */
+    (function () {
+      if (REDUCED || window.matchMedia('(max-width: 700px)').matches) return;
+      document.querySelectorAll('.cap-card').forEach((card) => {
+        const inner = card.querySelector('.cap-inner');
+        if (!inner) return;
+        card.addEventListener('mousemove', (e) => {
+          const r = card.getBoundingClientRect();
+          const x = (e.clientX - r.left) / r.width - 0.5;
+          const y = (e.clientY - r.top) / r.height - 0.5;
+          inner.style.transform = `perspective(1000px) rotateX(${(-y * 3).toFixed(2)}deg) rotateY(${(x * 3).toFixed(2)}deg)`;
+        });
+        card.addEventListener('mouseleave', () => {
+          inner.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+        });
+      });
+    })();
+
+    /* ── MINI CHART (hero card) ── */
+    let miniChartData = null;
+
+    function buildMiniChartData() {
+      const days = 90;
+      const values = [];
+      let v = 165;
+      for (let i = 0; i < days; i++) {
+        v += Math.sin(i / 6) * 0.9 + Math.cos(i / 11) * 0.5 + 0.22;
+        values.push(v);
+      }
+      const scale = 187.45 / values[values.length - 1];
+      for (let i = 0; i < days; i++) values[i] *= scale;
+      values[values.length - 1] = 187.45;
+      const forecast = [];
+      let f = 187.45;
+      for (let i = 0; i < 7; i++) {
+        f += 0.85 + Math.sin(i / 2) * 0.4;
+        forecast.push(f);
+      }
+      return { values, forecast };
+    }
+
+    function drawMiniChart(animate = true) {
+      const canvas = document.getElementById('mini-chart');
+      if (!canvas) return;
+      if (!miniChartData) miniChartData = buildMiniChartData();
+      const { values, forecast } = miniChartData;
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      const w = Math.max(rect.width || 260, 180);
+      const h = 90;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      canvas.style.height = h + 'px';
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+
+      const all = [...values, ...forecast];
+      const min = Math.min(...all);
+      const max = Math.max(...all);
+      const range = (max - min) || 1;
+      const total = all.length;
+      const pad = { l: 4, r: 4, t: 4, b: 4 };
+      const iw = w - pad.l - pad.r;
+      const ih = h - pad.t - pad.b;
+      const x = (i) => pad.l + (iw * i) / Math.max(1, total - 1);
+      const y = (v) => pad.t + ih - ((v - min) / range) * ih;
+      const shouldAnimate = animate && !REDUCED;
+
+      function frame(progress) {
+        ctx.clearRect(0, 0, w, h);
+        const text = cssVar('--color-text') || '#eef3ef';
+        const accent = cssVar('--color-accent') || '#b8ff3d';
+        const muted = cssVar('--color-text-muted') || '#8fa196';
+
+        ctx.strokeStyle = muted;
+        ctx.globalAlpha = 0.15;
+        ctx.lineWidth = 1;
+        const midY = pad.t + ih / 2;
+        ctx.beginPath();
+        ctx.moveTo(pad.l, midY);
+        ctx.lineTo(w - pad.r, midY);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        const limit = Math.floor(progress * values.length);
+        ctx.strokeStyle = text;
+        ctx.lineWidth = 1.6;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        for (let i = 0; i <= limit && i < values.length; i++) {
+          const px = x(i), py = y(values[i]);
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+
+        if (progress >= 1) {
+          ctx.strokeStyle = accent;
+          ctx.setLineDash([3, 3]);
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.moveTo(x(values.length - 1), y(values[values.length - 1]));
+          forecast.forEach((v, i) => ctx.lineTo(x(values.length + i), y(v)));
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = accent;
+          ctx.beginPath();
+          ctx.arc(x(total - 1), y(forecast[forecast.length - 1]), 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      if (shouldAnimate) {
+        const start = performance.now();
+        function tick(now) {
+          const p = Math.min(1, (now - start) / 900);
+          frame(p);
+          if (p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      } else {
+        frame(1);
+      }
+    }
+
+    (function () {
+      const canvas = document.getElementById('mini-chart');
+      if (!canvas) return;
+      new IntersectionObserver((entries, o) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            drawMiniChart(true);
+            const bar = document.getElementById('vc-conf');
+            if (bar) {
+              setTimeout(() => {
+                bar.style.width = '72%';
+              }, 200);
+            }
+            o.disconnect();
+          }
+        });
+      }, { threshold: 0.3 }).observe(canvas);
+    })();
+
+    /* ── STAT SPARKLINES + COUNTERS ── */
+    function drawStatSparklines(animate = true) {
+      document.querySelectorAll('.stat-sparkline').forEach((canvas) => {
+        const kind = canvas.dataset.spark || 'up';
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        const w = Math.max(rect.width || 120, 40);
+        const h = 22;
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        canvas.style.height = h + 'px';
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.scale(dpr, dpr);
+
+        const n = 20;
+        const values = [];
+        for (let i = 0; i < n; i++) {
+          let v;
+          if (kind === 'up') v = i * 0.6 + Math.sin(i / 3) * 1.2;
+          else if (kind === 'flat') v = 5 + Math.sin(i / 2) * 0.6;
+          else v = i * 0.4;
+          values.push(v);
+        }
+
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        const range = (max - min) || 1;
+        const pad = { l: 2, r: 2, t: 3, b: 3 };
+        const iw = w - pad.l - pad.r;
+        const ih = h - pad.t - pad.b;
+        const x = (i) => pad.l + (iw * i) / Math.max(1, n - 1);
+        const y = (v) => pad.t + ih - ((v - min) / range) * ih;
+        const accent = cssVar('--color-accent') || '#b8ff3d';
+        const shouldAnimate = animate && !REDUCED;
+
+        function frame(progress) {
+          ctx.clearRect(0, 0, w, h);
+          ctx.strokeStyle = accent;
+          ctx.lineWidth = 1.2;
+          ctx.lineJoin = 'round';
+          ctx.lineCap = 'round';
+          ctx.globalAlpha = 0.7;
+          ctx.beginPath();
+          const limit = Math.floor(progress * n);
+          for (let i = 0; i <= limit && i < n; i++) {
+            const px = x(i), py = y(values[i]);
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+        }
+
+        if (shouldAnimate) {
+          const start = performance.now();
+          function tick(now) {
+            const p = Math.min(1, (now - start) / 900);
+            frame(p);
+            if (p < 1) requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+        } else {
+          frame(1);
+        }
+      });
+    }
+
+    (function () {
+      const firstSparkline = document.querySelector('.stat-sparkline');
+      if (!firstSparkline) return;
+      new IntersectionObserver((entries, o) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            drawStatSparklines(true);
+            document.querySelectorAll('[data-count]').forEach((el) => {
+              const target = parseInt(el.dataset.count, 10);
+              if (isNaN(target) || REDUCED) return;
+              const start = performance.now();
+              const tick = (now) => {
+                const p = Math.min(1, (now - start) / 900);
+                const cur = Math.round(target * (1 - Math.pow(1 - p, 3)));
+                el.textContent = cur.toLocaleString('en-US');
+                if (p < 1) requestAnimationFrame(tick);
+                else {
+                  const parent = el.closest('.stat-value');
+                  if (parent) {
+                    parent.classList.add('is-flashing');
+                    setTimeout(() => parent.classList.remove('is-flashing'), 720);
+                  }
+                }
+              };
+              requestAnimationFrame(tick);
+            });
+            o.disconnect();
+          }
+        });
+      }, { threshold: 0.4 }).observe(firstSparkline.parentElement);
+    })();
+
+    /* ── PROBLEM MINI CHARTS ── */
+    function drawProblemCharts() {
+      document.querySelectorAll('.mini-chart[data-mini="broken"]').forEach((canvas) => {
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        const w = Math.max(rect.width || 40, 20);
+        const h = Math.max(rect.height || 16, 10);
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        canvas.style.width = w + 'px';
+        canvas.style.height = h + 'px';
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.scale(dpr, dpr);
+        ctx.strokeStyle = cssVar('--color-sell') || '#ff5b5b';
+        ctx.lineWidth = 1.2;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.globalAlpha = 0.65;
+        ctx.beginPath();
+        const pts = [[0, 3], [7, 4], [12, 3], [18, 6], [24, 5], [30, 10], [35, 9], [40, 13]];
+        pts.forEach(([px, py], i) => {
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        });
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      });
+    }
+
+    drawProblemCharts();
+    window.addEventListener('resize', drawProblemCharts, { passive: true });
+
+    /* ── AGENT STRIP ── */
+    (function () {
+      const strip = document.getElementById('agent-strip');
+      const prog = document.getElementById('how-progress');
+      const clock = document.getElementById('how-time');
+      if (!strip) return;
+      const tiles = strip.querySelectorAll('.agent-tile');
+      if (REDUCED) {
+        tiles.forEach(t => t.classList.add('is-live'));
+        if (prog) prog.style.width = '100%';
+        return;
+      }
+      new IntersectionObserver((entries, o) => {
+        entries.forEach(e => {
+          if (!e.isIntersecting) return;
+          let i = 0;
+          const start = performance.now();
+          const tick = () => {
+            if (i >= tiles.length) return;
+            tiles[i].classList.add('is-live');
+            if (prog) prog.style.width = `${((i + 1) / tiles.length) * 100}%`;
+            if (clock) {
+              const elapsed = Math.floor((performance.now() - start) / 1000);
+              clock.textContent = `00:0${Math.min(elapsed, 9)}`;
+            }
+            i++;
+            setTimeout(tick, 380);
+          };
+          tick();
+          o.disconnect();
+        });
+      }, { threshold: 0.3 }).observe(strip);
+    })();
+
+    /* ── ANATOMY CANDLESTICK ── */
+    function drawAnatomyChart(animate = true) {
+      const canvas = document.getElementById('anatomy-chart');
+      if (!canvas) return;
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      const w = Math.max(rect.width || 300, 200);
+      const h = 90;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      canvas.style.height = h + 'px';
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+
+      const candles = [
+        { open: 172, close: 176, high: 178, low: 170 },
+        { open: 176, close: 174, high: 179, low: 172 },
+        { open: 174, close: 179, high: 181, low: 173 },
+        { open: 179, close: 182, high: 184, low: 178 },
+        { open: 182, close: 180, high: 183, low: 178 },
+        { open: 180, close: 184, high: 186, low: 179 },
+        { open: 184, close: 183, high: 187, low: 181 },
+        { open: 183, close: 186, high: 188, low: 182 },
+        { open: 186, close: 184, high: 187, low: 183 },
+        { open: 184, close: 188, high: 189, low: 183 },
+        { open: 188, close: 186, high: 189, low: 185 },
+        { open: 186, close: 187.45, high: 189.5, low: 185 }
+      ];
+
+      const min = Math.min(...candles.map(c => c.low));
+      const max = Math.max(...candles.map(c => c.high));
+      const range = (max - min) || 1;
+      const pad = { l: 6, r: 6, t: 6, b: 6 };
+      const iw = w - pad.l - pad.r;
+      const ih = h - pad.t - pad.b;
+      const slotW = iw / candles.length;
+      const candleW = slotW * 0.55;
+      const accent = cssVar('--color-accent') || '#b8ff3d';
+      const sell = cssVar('--color-sell') || '#ff5b5b';
+      const muted = cssVar('--color-text-muted') || '#8fa196';
+      const y = (v) => pad.t + ih - ((v - min) / range) * ih;
+      const shouldAnimate = animate && !REDUCED;
+
+      function frame(progress) {
+        ctx.clearRect(0, 0, w, h);
+        ctx.strokeStyle = muted;
+        ctx.globalAlpha = 0.12;
+        ctx.lineWidth = 1;
+        [0.25, 0.5, 0.75].forEach(t => {
+          const gy = pad.t + ih * t;
+          ctx.beginPath();
+          ctx.moveTo(pad.l, gy);
+          ctx.lineTo(w - pad.r, gy);
+          ctx.stroke();
+        });
+        ctx.globalAlpha = 1;
+
+        const limit = Math.floor(progress * candles.length);
+        candles.forEach((c, i) => {
+          if (i > limit) return;
+          const cx = pad.l + slotW * i + slotW / 2;
+          const isUp = c.close >= c.open;
+          const color = isUp ? accent : sell;
+          const bodyTop = y(Math.max(c.open, c.close));
+          const bodyBottom = y(Math.min(c.open, c.close));
+          const bodyH = Math.max(1.5, bodyBottom - bodyTop);
+
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 1.1;
+          ctx.globalAlpha = 0.85;
+          ctx.beginPath();
+          ctx.moveTo(cx, y(c.high));
+          ctx.lineTo(cx, y(c.low));
+          ctx.stroke();
+
+          if (isUp) {
+            ctx.strokeRect(cx - candleW / 2, bodyTop, candleW, bodyH);
+          } else {
+            ctx.fillStyle = color;
+            ctx.globalAlpha = 0.85;
+            ctx.fillRect(cx - candleW / 2, bodyTop, candleW, bodyH);
+          }
+          ctx.globalAlpha = 1;
+        });
+
+        if (progress >= 1) {
+          const lastIdx = candles.length - 1;
+          const cx = pad.l + slotW * lastIdx + slotW / 2;
+          const last = candles[lastIdx];
+          const bodyTop = y(Math.max(last.open, last.close));
+          const bodyBottom = y(Math.min(last.open, last.close));
+          const bodyH = Math.max(1.5, bodyBottom - bodyTop);
+          const pulse = (Math.sin(performance.now() / 600) + 1) / 2;
+          ctx.strokeStyle = accent;
+          ctx.globalAlpha = 0.35 + pulse * 0.45;
+          ctx.lineWidth = 1;
+          ctx.strokeRect(cx - candleW / 2 - 2, bodyTop - 2, candleW + 4, bodyH + 4);
+          ctx.globalAlpha = 1;
+          if (!REDUCED) requestAnimationFrame(() => frame(1));
+        }
+      }
+
+      if (shouldAnimate) {
+        const start = performance.now();
+        function tick(now) {
+          const p = Math.min(1, (now - start) / 1200);
+          frame(p);
+          if (p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      } else {
+        frame(1);
+      }
+    }
+
+    (function () {
+      const canvas = document.getElementById('anatomy-chart');
+      if (!canvas) return;
+      new IntersectionObserver((entries, o) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            drawAnatomyChart(true);
+            o.disconnect();
+          }
+        });
+      }, { threshold: 0.3 }).observe(canvas);
+    })();
+
+    /* ── SOURCE TRAIL INTERACTIVE ── */
+    (function () {
+      const claims = document.querySelectorAll('.st-claim');
+      const panels = document.querySelectorAll('.st-source');
+      if (!claims.length || !panels.length) return;
+
+      claims.forEach(claim => {
+        claim.addEventListener('click', () => {
+          claims.forEach(c => c.classList.remove('is-active'));
+          claim.classList.add('is-active');
+          const key = claim.dataset.source;
+          panels.forEach(p => {
+            if (p.dataset.panel === key) p.classList.add('is-active');
+            else p.classList.remove('is-active');
+          });
+        });
+      });
+    })();
+
+    /* ── CTA BACKGROUND CHART ── */
+    function drawCtaChart(animate = true) {
+      const canvas = document.getElementById('cta-chart');
+      if (!canvas) return;
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      const w = Math.max(rect.width || 800, 400);
+      const h = Math.max(rect.height || 300, 200);
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+
+      const n = 80;
+      const values = [];
+      for (let i = 0; i < n; i++) {
+        values.push(20 + i * 2.4 + Math.sin(i / 3) * 12 + Math.cos(i / 7) * 8);
+      }
+
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const range = (max - min) || 1;
+      const pad = 20;
+      const iw = w - pad * 2;
+      const ih = h - pad * 2;
+      const x = (i) => pad + (iw * i) / Math.max(1, n - 1);
+      const y = (v) => pad + ih - ((v - min) / range) * ih;
+      const accent = cssVar('--color-accent') || '#b8ff3d';
+      const shouldAnimate = animate && !REDUCED;
+
+      function frame(progress) {
+        ctx.clearRect(0, 0, w, h);
+        const limit = Math.floor(progress * n);
+
+        ctx.beginPath();
+        ctx.moveTo(x(0), h);
+        for (let i = 0; i <= limit && i < n; i++) ctx.lineTo(x(i), y(values[i]));
+        ctx.lineTo(x(Math.min(limit, n - 1)), h);
+        ctx.closePath();
+        ctx.fillStyle = accent;
+        ctx.globalAlpha = 0.04;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+
+        ctx.strokeStyle = accent;
+        ctx.lineWidth = 2;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.globalAlpha = 0.45;
+        ctx.beginPath();
+        for (let i = 0; i <= limit && i < n; i++) {
+          const px = x(i), py = y(values[i]);
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+
+      if (shouldAnimate) {
+        const start = performance.now();
+        function tick(now) {
+          const p = Math.min(1, (now - start) / 1600);
+          frame(p);
+          if (p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      } else {
+        frame(1);
+      }
+    }
+
+    (function () {
+      const canvas = document.getElementById('cta-chart');
+      if (!canvas) return;
+      new IntersectionObserver((entries, o) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            drawCtaChart(true);
+            o.disconnect();
+          }
+        });
+      }, { threshold: 0.2 }).observe(canvas);
+      window.addEventListener('resize', () => drawCtaChart(false), { passive: true });
+    })();
+
+    /* ── SMOOTH ANCHORS ── */
+    (function () {
+      document.querySelectorAll('a[href^="#"]').forEach((a) => {
+        a.addEventListener('click', (e) => {
+          const t = a.getAttribute('href');
+          if (t.length <= 1) return;
+          const el = document.querySelector(t);
+          if (!el) return;
+          e.preventDefault();
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

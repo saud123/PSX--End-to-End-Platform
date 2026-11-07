@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-ds="1.0">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="color-scheme" content="dark light" />
+<meta name="design-system" content="PSX-Intelligence/1.0" />
+<title>PSX Intelligence · Research Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<noscript>
+  <div style="padding: 24px; text-align: center; font-family: system-ui, sans-serif;">
+    <h1>PSX Intelligence requires JavaScript</h1>
+    <p>Please enable JavaScript to use this research desk.</p>
+  </div>
+</noscript>
+
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+<div class="shell">
+
+  <header class="topbar" role="banner">
+    <button class="icon-btn press sidebar-toggle" id="sidebar-toggle" type="button"
+            aria-label="Toggle sidebar" aria-expanded="true" aria-controls="sidebar">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+    </button>
+
+    <a href="#/analyze" class="brand press" aria-label="PSX Intelligence, home">
+      <span class="brand-mark" aria-hidden="true">PI</span>
+      <span class="brand-text">
+        <span class="brand-name">PSX Intelligence</span>
+        <span class="brand-sub">Research Desk</span>
+      </span>
+    </a>
+
+    <nav class="topnav" aria-label="Primary">
+      <a href="home.html" data-route="home" class="press">Home</a>
+      <a href="#/analyze" data-route="analyze" class="press">Analyze</a>
+      <a href="#/compare" data-route="compare" class="press">Compare</a>
+      <a href="#/screen"  data-route="screen"  class="press">Screen</a>
+      <a href="#/chat"    data-route="chat"    class="press">Chat</a>
+    </nav>
+
+    <div class="top-actions">
+      <button class="status-badge press" id="mode-badge" type="button" aria-live="polite">
+        <span class="dot"></span><span class="txt">EOD · —</span>
+      </button>
+      <button class="icon-btn press" id="sources-btn" type="button" aria-label="Open data sources">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h10"/>
+        </svg>
+        <span class="src-count" id="src-count">0</span>
+      </button>
+      <button class="icon-btn press" id="theme-btn" type="button" aria-label="Toggle theme">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <aside class="sidebar" id="sidebar" aria-label="Sections">
+
+    <nav class="sidebar-breadcrumb" aria-label="Breadcrumb">
+      <button class="crumb-back press" type="button" data-crumb-back aria-label="Go back">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+      </button>
+      <div class="crumb-path">
+        <a href="#/analyze" class="crumb-item press">Dashboard</a>
+        <span class="crumb-sep" aria-hidden="true">›</span>
+        <span class="crumb-current" data-crumb-current aria-current="page">Analyze</span>
+      </div>
+    </nav>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Analysis</div>
+      <a href="#/analyze" class="nav-item press" data-route="analyze"><span class="nav-icon" aria-hidden="true">◫</span><span>Analyze</span></a>
+      <a href="#/compare" class="nav-item press" data-route="compare"><span class="nav-icon" aria-hidden="true">⇄</span><span>Compare</span></a>
+      <a href="#/screen"  class="nav-item press" data-route="screen"><span class="nav-icon" aria-hidden="true">★</span><span>Screen</span></a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Assist</div>
+      <a href="#/chat" class="nav-item press" data-route="chat"><span class="nav-icon" aria-hidden="true">◐</span><span>Chat</span></a>
+    </div>
+    <div class="sidebar-footer">
+      <span class="status-dot" aria-hidden="true"></span>
+      <span id="api-status">Connecting…</span>
+    </div>
+  </aside>
+
+  <main class="main" id="main" role="main" tabindex="-1">
+    <div class="disclaimer-bar" role="note">
+      <strong>Research, not advice.</strong>
+      <span>EOD data. Every number cites its source.</span>
+    </div>
+    <div id="page" class="page" aria-live="polite"></div>
+  </main>
+
+</div>
+
+<div class="sheet-backdrop" id="sheet-backdrop" hidden></div>
+<aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden>
+  <header class="sheet-head">
+    <h2 id="sheet-title">Data sources</h2>
+    <button class="icon-btn press" id="sheet-close" type="button" aria-label="Close">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </svg>
+    </button>
+  </header>
+  <div class="sheet-body" id="sheet-body"></div>
+</aside>
+
+<div class="error-boundary" id="error-boundary" hidden role="alert">
+  <div class="error-boundary-inner">
+    <h3>Something went wrong</h3>
+    <p class="error-boundary-msg" id="error-boundary-msg">An unexpected error occurred.</p>
+    <div class="error-boundary-actions">
+      <button class="btn-primary press" id="error-boundary-retry">Reload</button>
+      <button class="btn-ghost press" id="error-boundary-dismiss">Dismiss</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<script src="app.js" defer></script>
+</body>
+</html>
